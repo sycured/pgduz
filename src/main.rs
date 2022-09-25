@@ -2,96 +2,94 @@
 
 #[cfg(not(target_os = "windows"))]
 use jemallocator::Jemalloc;
-use std::env::args;
-use std::process::Command;
 
 #[cfg(not(target_os = "windows"))]
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
 use clap::{
-    crate_authors, crate_description, crate_name, crate_version, value_parser, Arg, Command,
+    crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgMatches, Command,
 };
 
 mod encrypt;
 mod pg_dump;
 mod zoho_workdrive_uploader;
 
-fn main() {
-    let matches = Command::new(crate_name!())
+fn build_cli() -> App<'static> {
+    Command::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
         .arg_required_else_help(true)
         .arg(
-            Arg::name("age_public_key")
+            Arg::new("age_public_key")
                 .help("AGE public key to encrypt backup")
                 .env("AGE_PUBLIC_KEY")
                 .takes_value(true)
                 .required(true),
         )
         .arg(
-            Arg::name("pg_db")
+            Arg::new("pg_db")
                 .help("The name of the database")
                 .env("PGDB")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("pg_host")
+            Arg::new("pg_host")
                 .help("The hostname of the database")
                 .env("PGHOST")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("pg_password")
+            Arg::new("pg_password")
                 .help("The password of the database")
                 .env("PGPASSWORD")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("pg_port")
+            Arg::new("pg_port")
                 .help("The port of the database")
                 .env("PGPORT")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("pg_user")
+            Arg::new("pg_user")
                 .help("The username of the database")
                 .env("PGUSER")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("retain_count")
+            Arg::new("retain_count")
                 .help("A number to retain, delete older files")
                 .env("RETAIN_COUNT")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("client_id")
+            Arg::new("client_id")
                 .help("Zoho API client id")
                 .env("client_id")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("client_secret")
+            Arg::new("client_secret")
                 .help("Zão API client secret")
                 .env("client_secret")
                 .required(true)
                 .takes_value(true),
         )
         .arg(
-            Arg::name("parent_id")
+            Arg::new("parent_id")
                 .help("Zoho WorkDrive folder id")
                 .env("parent_id")
                 .required(true)
-                .takes_value("true"),
+                .takes_value(true),
         )
         .arg(
             Arg::new("refresh_token")
@@ -100,5 +98,35 @@ fn main() {
                 .required(true)
                 .takes_value(true),
         )
-        .get_matches();
+}
+
+fn main() {
+    let matches: ArgMatches = build_cli().get_matches();
+    let (pg_dump_status, dump_filename): (bool, String) = pg_dump::dump_db(
+        matches.get_one::<String>("pg_host").unwrap().as_str(),
+        matches.get_one::<String>("pg_port").unwrap().as_str(),
+        matches.get_one::<String>("pg_db").unwrap().as_str(),
+        matches.get_one::<String>("pg_user").unwrap().as_str(),
+    );
+    if pg_dump_status {
+        if encrypt::age(
+            dump_filename.as_str(),
+            matches
+                .get_one::<String>("age_public_key")
+                .unwrap()
+                .as_str(),
+        ) {
+            zoho_workdrive_uploader::upload(
+                matches.get_one::<String>("client_id").unwrap().as_str(),
+                matches.get_one::<String>("client_secret").unwrap().as_str(),
+                matches.get_one::<String>("parent_id").unwrap().as_str(),
+                matches.get_one::<String>("refresh_token").unwrap().as_str(),
+                format!("{}.age", dump_filename).as_str(),
+            );
+        } else {
+            eprintln!("Failed to encrypt the dump.");
+        }
+    } else {
+        eprintln!("Failed to dump the database.");
+    }
 }
