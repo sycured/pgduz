@@ -1,18 +1,28 @@
+use chrono::Local;
 use std::process::Command;
+pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> (bool, String) {
+    let date: String = Local::now().format("%Y%m%d_%H%M%S").to_string();
+    let filename: String = format!("{}-{}.sqlc", db, date);
+    let filename_with_path: String = format!("/dump/{}", &filename);
 
-pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> bool {
-    let date = String::from_utf8(
-        Command::new("date")
-            .arg("+%Y%m%d_%H%M%S")
-            .output()
-            .unwrap()
-            .stdout,
-    )
-    .unwrap();
-    let filename = format!("{}-{}.sqlc", host, date);
-    let filename_with_path = format!("/dump/{}", filename);
+    println!("Job started: Dumping to {}", &filename);
 
-    println!("Job started: Dumping to {}", filename);
+    let status = Command::new("pg_dump")
+        .args([
+            "-Fc",
+            "-h",
+            host,
+            "-p",
+            port,
+            "-U",
+            user,
+            "-f",
+            &filename_with_path,
+            "-d",
+            db,
+        ])
+        .status()
+        .unwrap();
 
-    true
+    (status.success(), filename)
 }
