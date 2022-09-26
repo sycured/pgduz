@@ -103,24 +103,57 @@ fn build_cli() -> App<'static> {
 fn main() {
     let matches: ArgMatches = build_cli().get_matches();
     let (pg_dump_status, dump_filename): (bool, String) = pg_dump::dump_db(
-        matches.get_one::<String>("pg_host").unwrap().replace('"', "").as_str(),
-        matches.get_one::<String>("pg_port").unwrap().replace('"', "").as_str(),
-        matches.get_one::<String>("pg_db").unwrap().replace('"', "").as_str(),
-        matches.get_one::<String>("pg_user").unwrap().replace('"', "").as_str(),
+        matches
+            .get_one::<String>("pg_host")
+            .unwrap()
+            .replace('"', "")
+            .as_str(),
+        matches
+            .get_one::<String>("pg_port")
+            .unwrap()
+            .replace('"', "")
+            .as_str(),
+        matches
+            .get_one::<String>("pg_db")
+            .unwrap()
+            .replace('"', "")
+            .as_str(),
+        matches
+            .get_one::<String>("pg_user")
+            .unwrap()
+            .replace('"', "")
+            .as_str(),
     );
     if pg_dump_status {
         if encrypt::age(
             dump_filename.as_str(),
             matches
                 .get_one::<String>("age_public_key")
-                .unwrap().replace('"', "")
+                .unwrap()
+                .replace('"', "")
                 .as_str(),
         ) {
             zoho_workdrive_uploader::upload(
-                matches.get_one::<String>("client_id").unwrap().replace('"', "").as_str(),
-                matches.get_one::<String>("client_secret").unwrap().replace('"', "").as_str(),
-                matches.get_one::<String>("parent_id").unwrap().replace('"', "").as_str(),
-                matches.get_one::<String>("refresh_token").unwrap().replace('"', "").as_str(),
+                matches
+                    .get_one::<String>("client_id")
+                    .unwrap()
+                    .replace('"', "")
+                    .as_str(),
+                matches
+                    .get_one::<String>("client_secret")
+                    .unwrap()
+                    .replace('"', "")
+                    .as_str(),
+                matches
+                    .get_one::<String>("parent_id")
+                    .unwrap()
+                    .replace('"', "")
+                    .as_str(),
+                matches
+                    .get_one::<String>("refresh_token")
+                    .unwrap()
+                    .replace('"', "")
+                    .as_str(),
                 format!("{}.age", dump_filename).as_str(),
             );
         } else {
