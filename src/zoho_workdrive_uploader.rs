@@ -31,8 +31,7 @@ pub fn upload(
     refresh_token: &str,
     filename: &str,
 ) {
-    // let backup_folder_path: &str = "/dump";
-    let backup_folder_path: &str = "/tmp";
+    let backup_folder_path: &str = "/dump";
     let filename_with_path: &str = &format!("{}/{}", backup_folder_path, filename);
     if Path::new(filename_with_path).exists() {
         let timestamp: u128 = get_timestamp();
