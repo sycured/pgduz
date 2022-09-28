@@ -7,15 +7,13 @@ use jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-use clap::{
-    crate_authors, crate_description, crate_name, crate_version, App, Arg, ArgMatches, Command,
-};
+use clap::{crate_authors, crate_description, crate_name, crate_version, Arg, ArgMatches, Command};
 
 mod encrypt;
 mod pg_dump;
 mod zoho_workdrive_uploader;
 
-fn build_cli() -> App<'static> {
+fn build_cli() -> Command {
     Command::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -25,78 +23,67 @@ fn build_cli() -> App<'static> {
             Arg::new("age_public_key")
                 .help("AGE public key to encrypt backup")
                 .env("AGE_PUBLIC_KEY")
-                .takes_value(true)
                 .required(true),
         )
         .arg(
             Arg::new("pg_db")
                 .help("The name of the database")
                 .env("PGDB")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("pg_host")
                 .help("The hostname of the database")
                 .env("PGHOST")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("pg_password")
                 .help("The password of the database")
                 .env("PGPASSWORD")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("pg_port")
                 .help("The port of the database")
                 .env("PGPORT")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("pg_user")
                 .help("The username of the database")
                 .env("PGUSER")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("retain_count")
                 .help("A number to retain, delete older files")
                 .env("RETAIN_COUNT")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("client_id")
                 .help("Zoho API client id")
                 .env("client_id")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("client_secret")
                 .help("Zão API client secret")
                 .env("client_secret")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("parent_id")
                 .help("Zoho WorkDrive folder id")
                 .env("parent_id")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
             Arg::new("refresh_token")
                 .help("Zoho API refresh token")
                 .env("refresh_token")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
 }
 
