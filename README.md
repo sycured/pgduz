@@ -2,21 +2,21 @@
 
 ## Usage
 
-Attach a target postgres container to this container and mount a volume
+Attach a target PostgreSQL container to this container and mount a volume
 to `/dump` folder. Backups will appear in this volume.
 Optionally set up cron job schedule (default is `0 1 * * *` - runs every day at 1:00 am).
 
 Steps done:
-    - dump the db in PostgreSQL custom format (binary)
+    - dump the database in PostgreSQL custom format (binary)
     - encrypt using [age](https://github.com/FiloSottile/age/releases/latest) (open source and cross-platform: FreeBSD, Linux, macOS, and Windows)
-    - send encrypted file to Zoho WorkDrive
+    - send the encrypted file to Zoho WorkDrive
 
 
 ## Create API client id, secret and code
 
 - Go to https://api-console.zoho.com/
 - Create a Self Client
-- Take client id and secret in the Client Secret tab
+- Takes client id and secret from Client Secret tab
 - Generate code in Generate Code tab:
     - scope: `WorkDrive.files.CREATE,ZohoFiles.files.CREATE`
     - time duration: 10 minutes
@@ -37,10 +37,10 @@ Now, we need to get the refresh token: `curl -XPOST https://accounts.zoho.com/oa
 | `PGUSER`         | Required  | postgres  | The user for accessing the database                 |
 | `RETAIN_COUNT`   | Optional  |  `None`   | A number to retain, delete older files              |
 | `TZ`             | Optional  |    UTC    | Timezone used by the container_name                 |
-| `client_id`      | Required  |  `None`   | Zoho API client id                                  |
-| `client_secret`  | Required  |  `None`   | Zoho API client secret                              |
-| `refresh_token`  | Required  |  `None`   | Zoho API refresh token                              |
-| `parent_id`      | Required  |  `None`   | Zoho WorkDrive folder id                            | 
+| `CLIENT_ID`      | Required  |  `None`   | Zoho API client id                                  |
+| `CLIENT_SECRET`  | Required  |  `None`   | Zoho API client secret                              |
+| `REFRESH_TOKEN`  | Required  |  `None`   | Zoho API refresh token                              |
+| `PARENT_ID`      | Required  |  `None`   | Zoho WorkDrive folder id                            | 
 
 Docker Compose
 ==============

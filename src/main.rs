@@ -64,25 +64,25 @@ fn build_cli() -> Command {
         .arg(
             Arg::new("client_id")
                 .help("Zoho API client id")
-                .env("client_id")
+                .env("CLIENT_ID")
                 .required(true),
         )
         .arg(
             Arg::new("client_secret")
                 .help("Zão API client secret")
-                .env("client_secret")
+                .env("CLIENT_SECRET")
                 .required(true),
         )
         .arg(
             Arg::new("parent_id")
                 .help("Zoho WorkDrive folder id")
-                .env("parent_id")
+                .env("PARENT_ID")
                 .required(true),
         )
         .arg(
             Arg::new("refresh_token")
                 .help("Zoho API refresh token")
-                .env("refresh_token")
+                .env("REFRESH_TOKEN")
                 .required(true),
         )
 }
@@ -141,7 +141,7 @@ fn main() {
                     .unwrap()
                     .replace('"', "")
                     .as_str(),
-                format!("{}.age", dump_filename).as_str(),
+                format!("{dump_filename}.age").as_str(),
             );
         } else {
             eprintln!("Failed to encrypt the dump.");

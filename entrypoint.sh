@@ -8,9 +8,10 @@ PGUSER=${PGUSER:-postgres}
 PGDB=${PGDB:-postgres}
 PGHOST=${PGHOST:-db}
 PGPORT=${PGPORT:-5432}
-client_id=${client_id}
-client_secret=${client_secret}
-parent_id=${parent_id}
+CLIENT_ID=${CLIENT_ID}
+CLIENT_SECRET=${CLIENT_SECRET}
+PARENT_ID=${PARENT_ID}
+REFRESH_TOKEN=${REFRESH_TOKEN}
 
 if [[ "${COMMAND}" == 'dump' ]]; then
     exec /app/pgduz
@@ -19,7 +20,7 @@ elif [[ "${COMMAND}" == 'dump-cron' ]]; then
     if [[ ! -e "${LOGFIFO}" ]]; then
         mkfifo "${LOGFIFO}"
     fi
-    CRON_ENV="PGUSER='${PGUSER}'\nPGDB='${PGDB}'\nPGHOST='${PGHOST}'\nPGPORT='${PGPORT}'\nAGE_PUBLIC_KEY='${AGE_PUBLIC_KEY}'\nparent_id='${parent_id}'\nrefresh_token='${refresh_token}'\nclient_secret='${client_secret}'\nclient_id='${client_id}'"
+    CRON_ENV="PGUSER='${PGUSER}'\nPGDB='${PGDB}'\nPGHOST='${PGHOST}'\nPGPORT='${PGPORT}'\nAGE_PUBLIC_KEY='${AGE_PUBLIC_KEY}'\nPARENT_ID='${PARENT_ID}'\nREFRESH_TOKEN='${REFRESH_TOKEN}'\nCLIENT_SECRET='${CLIENT_SECRET}'\nCLIENT_ID='${CLIENT_ID}'"
     if [[ -n "${PGPASSWORD}" ]]; then
         CRON_ENV="$CRON_ENV\nPGPASSWORD='${PGPASSWORD}'"
     fi

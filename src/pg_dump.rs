@@ -2,7 +2,7 @@ use chrono::Local;
 use std::process::Command;
 pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> (bool, String) {
     let date: String = Local::now().format("%Y%m%d_%H%M%S").to_string();
-    let filename: String = format!("{}-{}.sqlc", db, date);
+    let filename: String = format!("{db}-{date}.sqlc");
     let filename_with_path: String = format!("/dump/{}", &filename);
 
     println!("Job started: Dumping to {}", &filename);
