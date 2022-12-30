@@ -9,7 +9,7 @@ RUN apt-get update \
 FROM postgres:14-bullseye
 RUN echo "deb http://deb.debian.org/debian bullseye-backports main" > /etc/apt/sources.list.d/backports.list \
     && apt-get update \
-    && apt-get install -y --no-install-recommends age/bullseye-backports bash cron shadow \
+    && apt-get install -y --no-install-recommends age/bullseye-backports cron \
     && rm -rf /var/cache/apt/* \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -s /bin/bash app \
