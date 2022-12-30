@@ -7,7 +7,10 @@ use jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-use clap::{crate_authors, crate_description, crate_name, crate_version, Arg, ArgMatches, Command};
+use clap::{
+    crate_authors, crate_description, crate_name, crate_version, Arg, ArgAction::SetTrue,
+    ArgMatches, Command,
+};
 
 mod encrypt;
 mod pg_dump;
@@ -56,40 +59,43 @@ fn build_cli() -> Command {
                 .required(true),
         )
         .arg(
-            Arg::new("retain_count")
-                .help("A number to retain, delete older files")
-                .env("RETAIN_COUNT")
-                .required(true),
+            Arg::new("enable_upload")
+                .help("Enable uploading the encrypted backup to Zoho WorkDrive")
+                .long("enable_upload")
+                .short('u')
+                .action(SetTrue)
+                .env("ENABLE_UPLOAD"),
         )
         .arg(
             Arg::new("client_id")
                 .help("Zoho API client id")
                 .env("CLIENT_ID")
-                .required(true),
+                .requires("enable_upload"),
         )
         .arg(
             Arg::new("client_secret")
-                .help("Zão API client secret")
+                .help("Zoho API client secret")
                 .env("CLIENT_SECRET")
-                .required(true),
+                .requires("enable_upload"),
         )
         .arg(
             Arg::new("parent_id")
                 .help("Zoho WorkDrive folder id")
                 .env("PARENT_ID")
-                .required(true),
+                .requires("enable_upload"),
         )
         .arg(
             Arg::new("refresh_token")
                 .help("Zoho API refresh token")
                 .env("REFRESH_TOKEN")
-                .required(true),
+                .requires("enable_upload"),
         )
 }
 
 fn main() {
     let matches: ArgMatches = build_cli().get_matches();
-    let (pg_dump_status, dump_filename): (bool, String) = pg_dump::dump_db(
+    let upload_enabled: bool = *matches.get_one::<bool>("enable_upload").unwrap_or(&false);
+    let dump_filename: String = pg_dump::dump_db(
         matches
             .get_one::<String>("pg_host")
             .unwrap()
@@ -111,15 +117,16 @@ fn main() {
             .replace('"', "")
             .as_str(),
     );
-    if pg_dump_status {
-        if encrypt::age(
-            dump_filename.as_str(),
-            matches
-                .get_one::<String>("age_public_key")
-                .unwrap()
-                .replace('"', "")
-                .as_str(),
-        ) {
+    if encrypt::age(
+        dump_filename.as_str(),
+        matches
+            .get_one::<String>("age_public_key")
+            .unwrap()
+            .replace('"', "")
+            .as_str(),
+    ) {
+        println!("Encryption done.");
+        if upload_enabled {
             zoho_workdrive_uploader::upload(
                 matches
                     .get_one::<String>("client_id")
@@ -144,9 +151,11 @@ fn main() {
                 format!("{dump_filename}.age").as_str(),
             );
         } else {
-            eprintln!("Failed to encrypt the dump.");
+            println!(
+                "Encryption done without the upload to Zoho WorkDrive: the option wasn't enabled."
+            );
         }
     } else {
-        eprintln!("Failed to dump the database.");
+        eprintln!("Failed to encrypt the dump.");
     }
 }

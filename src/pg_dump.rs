@@ -1,6 +1,6 @@
 use chrono::Local;
-use std::process::Command;
-pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> (bool, String) {
+use std::process::{exit, Command};
+pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> String {
     let date: String = Local::now().format("%Y%m%d_%H%M%S").to_string();
     let filename: String = format!("{db}-{date}.sqlc");
     let filename_with_path: String = format!("/dump/{}", &filename);
@@ -24,5 +24,10 @@ pub fn dump_db(host: &str, port: &str, db: &str, user: &str) -> (bool, String) {
         .status()
         .unwrap();
 
-    (status.success(), filename)
+    if status.success() {
+        filename
+    } else {
+        eprintln!("Failed to dump the database {db}");
+        exit(1);
+    }
 }
