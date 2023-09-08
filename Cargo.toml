@@ -10,7 +10,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 attohttpc = { version = "0.26.1", default-features = false, features = ["compress", "json", "rustls"] }
-chrono = { version = "0.4.29", features = ["clock", "std"] }
+chrono = { version = "0.4.30", features = ["clock", "std"] }
 clap = { version = "4.4.2", features = ["cargo", "env", "wrap_help"] }
 serde_json = "1.0.105"
 
